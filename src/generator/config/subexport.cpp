@@ -4313,8 +4313,18 @@ std::string proxyToSurge(std::vector<Proxy> &nodes,
       if (!scv.is_undef())
         proxy += ", skip-cert-verify=" + scv.get_str();
       break;
-    case ProxyType::Trojan:
+    case ProxyType::Trojan: {
       if (surge_ver < 4 && surge_ver != -3) {
+        supported = false;
+        break;
+      }
+      const std::string first_alpn =
+          x.Alpn.empty() ? "" : trim(split(x.Alpn, ",").front());
+      if (!surgeProxyScalarIsSafe(hostname) ||
+          !surgeProxyScalarIsSafe(password) ||
+          !surgeProxyScalarIsSafe(sni) || !surgeProxyScalarIsSafe(host) ||
+          !surgeProxyScalarIsSafe(path) ||
+          !surgeProxyScalarIsSafe(first_alpn)) {
         supported = false;
         break;
       }
@@ -4328,7 +4338,27 @@ std::string proxyToSurge(std::vector<Proxy> &nodes,
       }
       if (!scv.is_undef())
         proxy += ", skip-cert-verify=" + scv.get_str();
+      if (!first_alpn.empty())
+        proxy += ", alpn=" + first_alpn;
+      switch (hash_(toLower(trim(transproto)))) {
+      case ""_hash:
+      case "tcp"_hash:
+        break;
+      case "ws"_hash:
+        proxy += ", ws=true, ws-path=" + (path.empty() ? "/" : path);
+        if (!host.empty())
+          headers.push_back("Host:" + host);
+        if (!edge.empty())
+          headers.push_back("Edge:" + edge);
+        if (!headers.empty())
+          proxy += ", ws-headers=" + join(headers, "|");
+        break;
+      default:
+        supported = false;
+        break;
+      }
       break;
+    }
     case ProxyType::Snell: {
       const uint16_t snell_version =
           x.SnellVersion == 0 ? 1 : x.SnellVersion;

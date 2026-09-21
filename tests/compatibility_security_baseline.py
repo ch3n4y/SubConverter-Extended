@@ -9871,7 +9871,12 @@ def simple_target_protocol_baseline(base_url: str, fixture_base: str) -> None:
             "target": "surge",
             "ver": "4",
             "url": "|".join(
-                (HYSTERIA2_SURGE_GECKO_URI, TUIC_SURGE_URI, ANYTLS_MODERN_URI)
+                (
+                    HYSTERIA2_SURGE_GECKO_URI,
+                    TUIC_SURGE_URI,
+                    ANYTLS_MODERN_URI,
+                    TROJAN_WS_URI,
+                )
             ),
             "list": "true",
         },
@@ -9891,6 +9896,11 @@ def simple_target_protocol_baseline(base_url: str, fixture_base: str) -> None:
             "anytls, 2001:db8::12, 443, password=p@ss+word",
             "sni=anytls-tls.example.test",
             "alpn=h2",
+            "TrojanWS = trojan, 2001:db8::2, 443, password=p@ss+word/token",
+            "sni=trojan-tls.example.test",
+            "ws=true",
+            "ws-path=/socket",
+            "ws-headers=Host:ws.example.test",
         )
     ):
         raise AssertionError(
