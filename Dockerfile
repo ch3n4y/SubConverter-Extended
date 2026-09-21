@@ -12,6 +12,7 @@ ARG TARGETVARIANT
 ARG MIHOMO_REF="Alpha"
 ARG MIHOMO_CACHE_BUST=1
 ARG REFRESH_GO_DEPS=false
+ARG GOPROXY="https://proxy.golang.org,direct"
 ARG ENABLE_SANITIZERS=false
 
 WORKDIR /build/bridge
